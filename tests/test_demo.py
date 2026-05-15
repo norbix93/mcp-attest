@@ -7,7 +7,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "examples"))
 
-import demo  # noqa: E402 — must come after path injection
+import demo
 
 
 def test_demo_runs_and_exits_zero(capsys):

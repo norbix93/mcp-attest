@@ -101,7 +101,7 @@ async def handle_request(request: dict[str, Any]) -> dict[str, Any]:
 
 
 class _Handler(BaseHTTPRequestHandler):
-    def do_POST(self) -> None:  # noqa: N802 — http.server requires this casing
+    def do_POST(self) -> None:
         length = int(self.headers.get("Content-Length", "0"))
         body = self.rfile.read(length).decode("utf-8") if length else "{}"
         try:
@@ -119,7 +119,7 @@ class _Handler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(payload)
 
-    def log_message(self, _format: str, *_args: Any) -> None:  # noqa: D401
+    def log_message(self, _format: str, *_args: Any) -> None:
         """Silence the default per-request stderr log."""
 
 

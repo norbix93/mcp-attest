@@ -88,7 +88,7 @@ def loads(data: bytes) -> Any:
     return json.loads(data.decode("utf-8"))
 
 
-def hash(obj: Any) -> bytes:  # noqa: A001 — intentional public name; matches spec §6.1
+def hash(obj: Any) -> bytes:
     """Return ``blake2b(canonical(obj), digest_size=32)``.
 
     Convenience wrapper used pervasively when computing ``params_hash`` /

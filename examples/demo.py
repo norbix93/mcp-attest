@@ -12,16 +12,15 @@ from pathlib import Path
 # Make sibling example modules importable when the script is run directly.
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from mock_mcp_client import call_through_proxy  # noqa: E402
-from mock_mcp_server import handle_request  # noqa: E402
-
-from mcp_attest import (  # noqa: E402
+from mcp_attest import (
     AttestingProxy,
     crypto,
     detect_equivocation,
     verify_chain,
 )
-from mcp_attest.log import AttestationLog  # noqa: E402
+from mcp_attest.log import AttestationLog
+from mock_mcp_client import call_through_proxy
+from mock_mcp_server import handle_request
 
 GREEN = "\033[32m"
 RED = "\033[31m"

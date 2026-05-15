@@ -125,12 +125,14 @@ class SignedRecord:
     signature: str
 
     def to_dict(self) -> dict[str, Any]:
+        """Return the JSON-serializable dict form (one line in the on-disk JSONL)."""
         return {
             "entry": self.entry.to_dict(),
             "signature": self.signature,
         }
 
     def to_canonical_bytes(self) -> bytes:
+        """Return canonical JSON bytes — input to :meth:`entry_hash`."""
         return canonical.dumps(self.to_dict())
 
     def to_json_line(self) -> str:
@@ -143,6 +145,7 @@ class SignedRecord:
 
     @classmethod
     def from_dict(cls, d: dict[str, Any]) -> SignedRecord:
+        """Reconstruct a :class:`SignedRecord` from its dict form, rejecting extras."""
         extra = set(d.keys()) - {"entry", "signature"}
         if extra:
             raise ValueError(f"unexpected keys in SignedRecord: {sorted(extra)}")
@@ -169,6 +172,7 @@ class Receipt:
     server_id: str
 
     def to_dict(self) -> dict[str, Any]:
+        """Return the JSON-serializable dict form."""
         return {
             "seq": self.seq,
             "entry_hash": self.entry_hash,
@@ -178,6 +182,7 @@ class Receipt:
 
     @classmethod
     def from_dict(cls, d: dict[str, Any]) -> Receipt:
+        """Reconstruct a :class:`Receipt` from its dict form."""
         return cls(
             seq=int(d["seq"]),
             entry_hash=str(d["entry_hash"]),
@@ -215,6 +220,7 @@ class SignedTreeHead:
         )
 
     def to_dict(self) -> dict[str, Any]:
+        """Return the JSON-serializable dict form (signed payload + signature)."""
         return {
             "chain_length": self.chain_length,
             "head_hash": self.head_hash,
@@ -224,6 +230,7 @@ class SignedTreeHead:
 
     @classmethod
     def from_dict(cls, d: dict[str, Any]) -> SignedTreeHead:
+        """Reconstruct a :class:`SignedTreeHead` from its dict form."""
         return cls(
             chain_length=int(d["chain_length"]),
             head_hash=str(d["head_hash"]),

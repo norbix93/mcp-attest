@@ -13,11 +13,10 @@ from pathlib import Path
 # Make the examples/ tree importable for the test runner.
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "examples"))
 
-from mock_mcp_client import call_http, call_through_proxy  # noqa: E402
-from mock_mcp_server import handle_request, run_http_server  # noqa: E402
-
-from mcp_attest import AttestingProxy, verify_chain, verify_receipt  # noqa: E402
-from mcp_attest.log import AttestationLog  # noqa: E402
+from mcp_attest import AttestingProxy, verify_chain, verify_receipt
+from mcp_attest.log import AttestationLog
+from mock_mcp_client import call_http, call_through_proxy
+from mock_mcp_server import handle_request, run_http_server
 
 
 class TestInProcessProxy:

@@ -1,4 +1,4 @@
-"""Append-only, signed, hash-chained log on disk (spec §4.8 / §6.4).
+r"""Append-only, signed, hash-chained log on disk (spec §4.8 / §6.4).
 
 Storage format is JSON Lines: one :class:`SignedRecord` per line. New records
 are appended under an ``fcntl.flock`` exclusive lock on the log file so two
@@ -99,7 +99,7 @@ class AttestationLog:
         last = self._last_record()
         return last.entry_hash() if last is not None else ZERO_HASH_HEX
 
-    def append(  # noqa: PLR0913 — protocol-level signature; collapsing args would hurt readability
+    def append(
         self,
         method: str,
         request_id: str,

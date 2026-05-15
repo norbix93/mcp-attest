@@ -16,7 +16,6 @@ from mcp_attest import canonical, crypto
 from mcp_attest.entry import (
     ZERO_HASH_HEX,
     Receipt,
-    SignedRecord,
     SignedTreeHead,
 )
 from mcp_attest.errors import (

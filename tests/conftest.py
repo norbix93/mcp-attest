@@ -81,4 +81,4 @@ def reopened_log_factory(log_path: Path, keypair: tuple[bytes, bytes]):
 @pytest.fixture
 def event_loop_policy() -> Iterator[None]:
     """Disable any asyncio policy customization to avoid bleed between tests."""
-    yield
+    return

@@ -106,7 +106,7 @@ class TestInvalidSTHBlocksProof:
         self, tmp_path: Path, keypair
     ):
         priv, pub = keypair
-        log_a, log_b = _build_forked_logs(tmp_path, priv, fork_at=3)
+        log_a, _log_b = _build_forked_logs(tmp_path, priv, fork_at=3)
         good = log_a.emit_sth(timestamp=100.0)
         # Construct a head-mismatched STH but with garbage signature.
         forged = SignedTreeHead(
