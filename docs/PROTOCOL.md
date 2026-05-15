@@ -161,7 +161,12 @@ Given `(receipt, params, result, server_pubkey, log)`:
    check they match the entry.
 4. Recompute `entry_hash` from the record; check it equals
    `receipt.entry_hash`.
-5. Return success, or raise a `VerificationError` subclass on the specific
+5. Check that `receipt.signature` equals the record's signature byte-for-
+   byte. This is strictly redundant given (2)+(4) — Ed25519 signatures are
+   deterministic, and the entry hash covers the signature — but pinning it
+   here makes "the receipt and the record agree" an explicit property of
+   the protocol rather than something a reader has to derive.
+6. Return success, or raise a `VerificationError` subclass on the specific
    mismatch.
 
 ### 9.3 VerifyChain

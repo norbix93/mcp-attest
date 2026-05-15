@@ -247,5 +247,31 @@ class TestCompareSTH:
                 str(pub_path),
             ],
         )
-        assert result.exit_code == 1
+        # Exit 3 = evidence found (distinct from 0=clean and 1=verifier-failed).
+        assert result.exit_code == 3
         assert "equivocation" in result.output.lower()
+
+    def test_malformed_sth_file_exits_user_error(
+        self,
+        runner: CliRunner,
+        tmp_path: Path,
+        keypair,
+    ):
+        _, pub = keypair
+        pub_path = tmp_path / "srv.pub"
+        pub_path.write_bytes(pub)
+        bad_a = tmp_path / "bad-a.json"
+        bad_b = tmp_path / "bad-b.json"
+        bad_a.write_text('{"chain_length": 1}')  # missing keys
+        bad_b.write_text("not even json")
+        result = runner.invoke(
+            main,
+            [
+                "compare-sth",
+                str(bad_a),
+                str(bad_b),
+                "--pubkey",
+                str(pub_path),
+            ],
+        )
+        assert result.exit_code == 2

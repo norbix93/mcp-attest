@@ -33,6 +33,11 @@ from mcp_attest.verifier import detect_equivocation, verify_chain, verify_sth
 EXIT_OK = 0
 EXIT_VERIFICATION_FAILED = 1
 EXIT_USER_ERROR = 2
+# compare-sth is unusual: detecting equivocation is a *successful* run that
+# happens to find evidence. We surface that as a distinct exit code so CI
+# pipelines can tell "I proved misbehavior" apart from "verifier itself
+# failed". 0 = no evidence, 3 = evidence proven, 2 = bad inputs.
+EXIT_EVIDENCE_FOUND = 3
 
 
 @click.group()
@@ -178,15 +183,31 @@ def sth(log_path: Path, pubkey_path: Path, privkey_path: Path) -> None:
     required=True,
 )
 def compare_sth(sth_a_path: Path, sth_b_path: Path, pubkey_path: Path) -> None:
-    """Report whether the two STHs prove log equivocation."""
+    """Report whether the two STHs prove log equivocation.
+
+    Exit codes for this command:
+
+      0  the two STHs are NOT equivocation evidence (no fork detected)
+      2  one or both STH files are malformed
+      3  EVIDENCE FOUND — the server signed two histories of the same length
+
+    The 0/3 split is intentional: detecting equivocation is a *successful*
+    run that happens to find misbehavior, so CI pipelines can tell it apart
+    from a verifier-itself failure (which would be exit 1 in this CLI). Use
+    ``exit_code != 0`` if you want either case to be alarming.
+    """
     pubkey = _read_pubkey(pubkey_path)
-    sth_a = _load_sth(sth_a_path)
-    sth_b = _load_sth(sth_b_path)
+    try:
+        sth_a = _load_sth(sth_a_path)
+        sth_b = _load_sth(sth_b_path)
+    except (ValueError, KeyError, json.JSONDecodeError) as exc:
+        click.echo(f"error: malformed STH file: {exc}", err=True)
+        sys.exit(EXIT_USER_ERROR)
     if detect_equivocation(sth_a, sth_b, pubkey):
         click.echo(
             f"EQUIVOCATION: server presented two histories at length {sth_a.chain_length}"
         )
-        sys.exit(EXIT_VERIFICATION_FAILED)
+        sys.exit(EXIT_EVIDENCE_FOUND)
     click.echo("OK: STHs are not equivocation evidence")
     sys.exit(EXIT_OK)
 

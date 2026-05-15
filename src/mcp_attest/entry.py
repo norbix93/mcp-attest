@@ -182,7 +182,19 @@ class Receipt:
 
     @classmethod
     def from_dict(cls, d: dict[str, Any]) -> Receipt:
-        """Reconstruct a :class:`Receipt` from its dict form."""
+        """Reconstruct a :class:`Receipt` from its dict form.
+
+        Like :meth:`AttestationEntry.from_dict`, this rejects both extra and
+        missing keys so a malformed receipt fails with a typed ``ValueError``
+        instead of a confusing ``KeyError`` deep inside verification.
+        """
+        expected = {"seq", "entry_hash", "signature", "server_id"}
+        extra = set(d.keys()) - expected
+        if extra:
+            raise ValueError(f"unexpected keys in Receipt: {sorted(extra)}")
+        missing = expected - set(d.keys())
+        if missing:
+            raise ValueError(f"missing keys in Receipt: {sorted(missing)}")
         return cls(
             seq=int(d["seq"]),
             entry_hash=str(d["entry_hash"]),
@@ -230,7 +242,20 @@ class SignedTreeHead:
 
     @classmethod
     def from_dict(cls, d: dict[str, Any]) -> SignedTreeHead:
-        """Reconstruct a :class:`SignedTreeHead` from its dict form."""
+        """Reconstruct a :class:`SignedTreeHead` from its dict form.
+
+        Rejects both extra and missing keys so a malformed STH JSON (e.g.,
+        from a peer or stale tooling) surfaces as a clean ``ValueError`` at
+        the CLI / library boundary instead of a ``KeyError`` deep inside
+        signature verification.
+        """
+        expected = {"chain_length", "head_hash", "timestamp", "signature"}
+        extra = set(d.keys()) - expected
+        if extra:
+            raise ValueError(f"unexpected keys in SignedTreeHead: {sorted(extra)}")
+        missing = expected - set(d.keys())
+        if missing:
+            raise ValueError(f"missing keys in SignedTreeHead: {sorted(missing)}")
         return cls(
             chain_length=int(d["chain_length"]),
             head_hash=str(d["head_hash"]),

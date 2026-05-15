@@ -57,13 +57,20 @@ the log with attested records in the page cache but not on disk.
 
 We use:
 * 0 — success
-* 1 — verification failed
-* 2 — user error
+* 1 — verification failed (signature / hash / chain)
+* 2 — user error (bad args, malformed input)
+* 3 — `compare-sth` only: equivocation evidence FOUND
 
-This deliberately differs from `sysexits.h` (where 1 is "general failure")
-because the distinction between "you gave me bad arguments" (2) and "the
-verifier ran and said no" (1) is the load-bearing signal for CI workflows
-gating on attestation health.
+The 0/1/2 split deliberately differs from `sysexits.h` because the
+distinction between "you gave me bad arguments" (2) and "the verifier ran
+and said no" (1) is the load-bearing signal for CI workflows gating on
+attestation health.
+
+The extra code 3 on `compare-sth` exists because that command is unusual:
+detecting equivocation is a *successful* run that happens to find
+misbehavior. Conflating it with code 1 (verifier-itself failure) would
+make a CI workflow that retries on "transient failure" silently retry past
+an actual security alert. Splitting these is the cleanest signal.
 
 ## 7. CLI `sth` cross-checks the keypair
 

@@ -120,6 +120,17 @@ class TestReceipt:
         r = Receipt(seq=12, entry_hash="ff" * 32, signature="aa" * 64, server_id="srv")
         assert Receipt.from_dict(r.to_dict()) == r
 
+    def test_from_dict_rejects_extras(self):
+        r = Receipt(seq=1, entry_hash="ff" * 32, signature="aa" * 64, server_id="srv")
+        d = r.to_dict()
+        d["bogus"] = "junk"
+        with pytest.raises(ValueError, match="unexpected keys"):
+            Receipt.from_dict(d)
+
+    def test_from_dict_rejects_missing(self):
+        with pytest.raises(ValueError, match="missing keys"):
+            Receipt.from_dict({"seq": 1, "entry_hash": "ff" * 32})
+
 
 class TestSignedTreeHead:
     def test_to_canonical_payload_excludes_signature(self):
@@ -145,6 +156,22 @@ class TestSignedTreeHead:
             signature="bb" * 64,
         )
         assert SignedTreeHead.from_dict(sth.to_dict()) == sth
+
+    def test_from_dict_rejects_extras(self):
+        sth = SignedTreeHead(
+            chain_length=1,
+            head_hash="aa" * 32,
+            timestamp=0.0,
+            signature="bb" * 64,
+        )
+        d = sth.to_dict()
+        d["smuggled"] = "field"
+        with pytest.raises(ValueError, match="unexpected keys"):
+            SignedTreeHead.from_dict(d)
+
+    def test_from_dict_rejects_missing(self):
+        with pytest.raises(ValueError, match="missing keys"):
+            SignedTreeHead.from_dict({"chain_length": 1, "head_hash": "aa" * 32})
 
 
 class TestZeroHashConstant:
