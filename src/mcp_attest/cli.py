@@ -199,10 +199,30 @@ def compare_sth(sth_a_path: Path, sth_b_path: Path, pubkey_path: Path) -> None:
 @main.command()
 def demo() -> None:
     """Run the end-to-end demo (see examples/demo.py)."""
-    # Lazy import so the CLI starts fast even if examples/ is removed.
-    from examples import demo as demo_module  # type: ignore[import-not-found]
+    # The demo lives in the examples/ tree, which isn't on sys.path when the
+    # package is installed. Locate it relative to the repo root or fall back
+    # to running it as a script so editable installs and source checkouts
+    # both work.
+    import importlib.util
 
-    sys.exit(demo_module.main())
+    candidate_paths = [
+        Path(__file__).resolve().parents[2] / "examples" / "demo.py",
+        Path.cwd() / "examples" / "demo.py",
+    ]
+    demo_path = next((p for p in candidate_paths if p.exists()), None)
+    if demo_path is None:
+        click.echo(
+            "error: examples/demo.py not found relative to install or cwd",
+            err=True,
+        )
+        sys.exit(EXIT_USER_ERROR)
+    spec = importlib.util.spec_from_file_location("mcp_attest_demo", demo_path)
+    if spec is None or spec.loader is None:
+        click.echo("error: could not load demo module", err=True)
+        sys.exit(EXIT_USER_ERROR)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    sys.exit(module.main())
 
 
 # ---------------------------------------------------------------------------
